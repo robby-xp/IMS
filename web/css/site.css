@@ -1,0 +1,13 @@
+.small-box .icon {
+    top: 10px;
+    font-size: 70px;
+}
+
+.small-box:hover .icon {
+    font-size: 75px;
+}
+
+.user-header > i {
+    color:#fff;
+    font-size:100px;
+}
