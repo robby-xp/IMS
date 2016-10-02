@@ -7,31 +7,28 @@ use yii\behaviors\TimestampBehavior;
 use yii\behaviors\BlameableBehavior;
 
 /**
- * This is the model class for table "items".
+ * This is the model class for table "purchases".
  *
  * @property integer $id
  * @property string $code
- * @property string $name
- * @property string $unit
- * @property integer $quantity
- * @property integer $stock
- * @property string $price
+ * @property string $supplier
+ * @property string $date
+ * @property string $total
  * @property integer $created_at
  * @property integer $created_by
  * @property integer $updated_at
  * @property integer $updated_by
  *
  * @property PurchasesDetail[] $purchasesDetails
- * @property SalesDetail[] $salesDetails
  */
-class Item extends \yii\db\ActiveRecord
+class Purchase extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'items';
+        return 'purchases';
     }
 
     /**
@@ -40,10 +37,11 @@ class Item extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
-            [['quantity', 'stock', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
-            [['price'], 'number'],
-            [['code', 'name', 'unit'], 'string', 'max' => 255],
+            [['date'], 'required'],
+            [['date'], 'safe'],
+            [['total'], 'number'],
+            [['created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
+            [['code', 'supplier'], 'string', 'max' => 255],
         ];
     }
 
@@ -63,11 +61,9 @@ class Item extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'code' => 'Kode',
-            'name' => 'Nama',
-            'unit' => 'Satuan',
-            'quantity' => 'Stok',
-            'stock' => 'Stok',
-            'price' => 'Harga',
+            'supplier' => 'Supplier',
+            'date' => 'Tanggal',
+            'total' => 'Total',
             'created_at' => 'Created At',
             'created_by' => 'Created By',
             'updated_at' => 'Updated At',
@@ -80,14 +76,6 @@ class Item extends \yii\db\ActiveRecord
      */
     public function getPurchasesDetails()
     {
-        return $this->hasMany(PurchasesDetail::className(), ['item_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getSalesDetails()
-    {
-        return $this->hasMany(SalesDetail::className(), ['item_id' => 'id']);
+        return $this->hasMany(PurchaseDetail::className(), ['purchase_id' => 'id']);
     }
 }

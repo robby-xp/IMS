@@ -5,12 +5,12 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Item;
+use app\models\Purchase;
 
 /**
- * ItemSearch represents the model behind the search form about `app\models\Item`.
+ * PurchaseSearch represents the model behind the search form about `app\models\Purchase`.
  */
-class ItemSearch extends Item
+class PurchaseSearch extends Purchase
 {
     /**
      * @inheritdoc
@@ -18,9 +18,9 @@ class ItemSearch extends Item
     public function rules()
     {
         return [
-            [['id', 'quantity', 'stock', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
-            [['code', 'name', 'unit'], 'safe'],
-            [['price'], 'number'],
+            [['id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
+            [['code', 'supplier', 'date'], 'safe'],
+            [['total'], 'number'],
         ];
     }
 
@@ -42,7 +42,7 @@ class ItemSearch extends Item
      */
     public function search($params)
     {
-        $query = Item::find();
+        $query = Purchase::find();
 
         // add conditions that should always apply here
 
@@ -63,9 +63,8 @@ class ItemSearch extends Item
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'quantity' => $this->quantity,
-            'stock' => $this->stock,
-            'price' => $this->price,
+            'date' => $this->date,
+            'total' => $this->total,
             'created_at' => $this->created_at,
             'created_by' => $this->created_by,
             'updated_at' => $this->updated_at,
@@ -73,8 +72,7 @@ class ItemSearch extends Item
         ]);
 
         $query->andFilterWhere(['like', 'code', $this->code])
-            ->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'unit', $this->unit]);
+            ->andFilterWhere(['like', 'supplier', $this->supplier]);
 
         return $dataProvider;
     }

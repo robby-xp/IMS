@@ -98,4 +98,9 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+
+    public function actionPassword()
+    {
+        return $this->render('password');
+    }
 }

@@ -49,6 +49,7 @@ $config = [
             ],
         ],
         'assetManager' => [
+            'forceCopy' => true,
             'bundles' => [
                 'dmstr\web\AdminLteAsset' => [
                     'skin' => 'skin-purple',
