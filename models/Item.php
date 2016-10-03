@@ -65,7 +65,7 @@ class Item extends \yii\db\ActiveRecord
             'code' => 'Kode',
             'name' => 'Nama',
             'unit' => 'Satuan',
-            'quantity' => 'Stok',
+            'quantity' => 'Stok Awal',
             'stock' => 'Stok',
             'price' => 'Harga',
             'created_at' => 'Created At',
