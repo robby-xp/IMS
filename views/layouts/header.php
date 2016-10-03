@@ -26,7 +26,7 @@ use yii\helpers\Url;
               </li>
               <li class="user-footer">
                 <div class="pull-left">
-                  <a href="#" class="btn btn-default btn-flat"><i class="glyphicon glyphicon-lock" aria-hidden="true"></i> Ubah Password</a>
+                  <a href="<?= Url::toRoute('/site/password') ?>" class="btn btn-default btn-flat"><i class="glyphicon glyphicon-lock" aria-hidden="true"></i> Ubah Password</a>
                 </div>
                 <div class="pull-right">
                   <a href="<?= Url::toRoute('/site/logout') ?>" class="btn btn-default btn-flat"><i class="glyphicon glyphicon-log-out" aria-hidden="true"></i> Logout</a>
