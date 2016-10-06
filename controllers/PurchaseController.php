@@ -6,6 +6,7 @@ use Yii;
 use app\models\Purchase;
 use app\models\PurchaseSearch;
 use app\models\PurchaseDetail;
+use app\models\Item;
 use app\models\Model;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -83,7 +84,12 @@ class PurchaseController extends Controller
                     if ($flag = $model->save(false)) {
                         foreach ($modelDetails as $modelDetail) {
                             $modelDetail->purchase_id = $model->id;
-                            if (!($flag = $modelDetail->save(false))) {
+                            if ($flag = $modelDetail->save(false)) {
+                                $item = Item::findOne($modelDetail->item_id);
+                                $item->stock += $modelDetail->quantity;
+                                $flag = $item->save();
+                            }
+                            if (!$flag) {
                                 $transaction->rollBack();
                                 break;
                             }
@@ -118,6 +124,13 @@ class PurchaseController extends Controller
         $modelDetails = $model->getPurchasesDetails()->all();
 
         if ($model->load(Yii::$app->request->post())) {
+            $oldModelDetails = array();
+            foreach ($modelDetails as $modelDetail) {
+                $oldModelDetails[$modelDetail->id] = [
+                    'item_id' => $modelDetail->item_id,
+                    'quantity' => $modelDetail->quantity
+                ];
+            }
             $oldIDs = ArrayHelper::map($modelDetails, 'id', 'id');
             $modelDetails = Model::createMultiple(PurchaseDetail::classname(), $modelDetails);
             Model::loadMultiple($modelDetails, Yii::$app->request->post());
@@ -131,13 +144,36 @@ class PurchaseController extends Controller
                 try {
                     if ($flag = $model->save(false)) {
                         if (!empty($deletedIDs)) {
-                            PurchaseDetail::deleteAll(['id' => $deletedIDs]);
-                        }
-                        foreach ($modelDetails as $modelDetail) {
-                            $modelDetail->purchase_id = $model->id;
-                            if (! ($flag = $modelDetail->save(false))) {
+                            $flag = PurchaseDetail::deleteAll(['id' => $deletedIDs]) > 0;
+                            if ($flag) {
+                                foreach ($deletedIDs as $id) {
+                                    $item = Item::findOne($oldModelDetails[$id]['item_id']);
+                                    $item->stock -= $oldModelDetails[$id]['quantity'];
+                                    if (!($flag = $item->save())) {
+                                        $transaction->rollBack();
+                                        break;
+                                    }
+                                }
+                            } else {
                                 $transaction->rollBack();
-                                break;
+                            }
+                        }
+                        if ($flag) {
+                            foreach ($modelDetails as $modelDetail) {
+                                $quantity = $modelDetail->quantity;
+                                if (!empty($modelDetail->id) && $modelDetail->item_id == $oldModelDetails[$modelDetail->id]['item_id']) {
+                                    $quantity -= $oldModelDetails[$modelDetail->id]['quantity'];
+                                }
+                                $modelDetail->purchase_id = $model->id;
+                                if (($flag = $modelDetail->save(false)) && $quantity !== 0) {
+                                    $item = Item::findOne($modelDetail->item_id);
+                                    $item->stock += $quantity;
+                                    $flag = $item->save();
+                                }
+                                if (!$flag) {
+                                    $transaction->rollBack();
+                                    break;
+                                }
                             }
                         }
                     }
@@ -165,7 +201,28 @@ class PurchaseController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        $modelDetails = $model->getPurchasesDetails()->all();
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            foreach ($modelDetails as $modelDetail) {
+                $item = Item::findOne($modelDetail->item_id);
+                $item->stock -= $modelDetail->quantity;
+                if (!($flag = $item->save())) {
+                    $transaction->rollBack();
+                    break;
+                }
+            }
+            if ($flag) {
+                if ($model->delete()) {
+                    $transaction->commit();
+                } else {
+                    $transaction->rollBack();
+                }
+            }
+        } catch (Exception $e) {
+            $transaction->rollBack();
+        }
 
         return $this->redirect(['index']);
     }

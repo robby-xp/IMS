@@ -21,7 +21,7 @@ function setIndexNo() {
 
 $(".dynamicform_wrapper").on({
     afterInsert: function(e, item) {
-        //$(item).find("select").select2();
+        $(item).find("select").prop("disabled", false);
         setIndexNo();
     },
     afterDelete: function(e, item) {
@@ -73,7 +73,10 @@ $this->registerJs($js);
                                     echo Html::activeHiddenInput($modelDetail, "[{$i}]id");
                                 } ?>
                             </td>
-                            <td><?= $form->field($modelDetail, "[{$i}]item_id")->widget(Select2::className(), ['data' => ArrayHelper::map(Item::find()->all(), 'id', 'name')])->label(false) ?></td>
+                            <td><?= $form->field($modelDetail, "[{$i}]item_id")->widget(Select2::className(), [
+                                'data' => ArrayHelper::map(Item::find()->all(), 'id', 'name'),
+                                'disabled' => !$modelDetail->isNewRecord
+                            ])->label(false) ?></td>
                             <td><?= $form->field($modelDetail, "[{$i}]quantity")->textInput()->label(false) ?></td>
                             <td><button type="button" class="pull-right remove-item btn btn-danger btn-xs"><i class="fa fa-minus"></i> Hapus</button></td>
                         </div>

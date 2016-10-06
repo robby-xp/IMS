@@ -14,11 +14,7 @@ use yii\bootstrap\ActiveForm;
             <?= $form->field($model, 'code')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'unit')->textInput(['maxlength' => true]) ?>
-            <?php
-                if ( $model->isNewRecord ) {
-                    echo $form->field($model, 'quantity')->textInput();
-                }
-            ?>
+            <?= $form->field($model, 'quantity')->textInput(); ?>
             <?= $form->field($model, 'price')->textInput(['maxlength' => true]) ?>
         </div>
         <div class="box-footer text-center">
