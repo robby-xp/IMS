@@ -7,7 +7,7 @@ use yii\helpers\Html;
 /* @var $model app\models\Sale */
 
 $this->title = 'Input Penjualan Baru';
-$this->params['breadcrumbs'][] = ['label' => 'Sales', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Penjualan', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="sale-create">
